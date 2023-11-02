@@ -2,43 +2,40 @@
 #include <semphr.h>
 #include <task.h>
 
-
 static xSemaphoreHandle sem;
 
-static void Thread1(void* arg) 
+static void Thread1(void* arg)
 {
     while (true) {
 
-        Serial.println("Thread 1 : Waiting on Thread 2");
 
         // Wait for signal from thread 2.
         xSemaphoreTake(sem, portMAX_DELAY);
 
-        Serial.println("Thread 1 : Okay");
+        digitalWrite(LED_BUILTIN, LOW);
     }
 }
 
-static void Thread2(void* arg) 
+static void Thread2(void* arg)
 {
     while (true) {
 
+        digitalWrite(LED_BUILTIN, HIGH);
 
-        Serial.println("Thread 2 : Here I come!");
-
-        vTaskDelay((2000L * configTICK_RATE_HZ) / 1000L);
-
-        Serial.println("Thread 2 : Yielding to Thread 1");
+        vTaskDelay((200L * configTICK_RATE_HZ) / 1000L);
 
         xSemaphoreGive(sem);
 
-        vTaskDelay((2000L * configTICK_RATE_HZ) / 1000L);
+        vTaskDelay((200L * configTICK_RATE_HZ) / 1000L);
     }
 }
 
 
-void setup() 
+void setup()
 {
     Serial.begin(115200);
+
+    pinMode(LED_BUILTIN, OUTPUT);
 
     // initialize semaphore
     sem = xSemaphoreCreateCounting(1, 0);
@@ -63,6 +60,6 @@ void setup()
     while(1);
 }
 
-void loop() 
+void loop()
 {
 }
